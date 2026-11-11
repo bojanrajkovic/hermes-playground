@@ -20,7 +20,7 @@ const ALLOWED: Record<ShipmentStatus, ShipmentStatus[]> = {
   created: ["in_transit", "exception"],
   in_transit: ["in_transit", "out_for_delivery", "exception"],
   out_for_delivery: ["delivered", "exception"],
-  delivered: [],
+  delivered: ["in_transit"],
   exception: ["in_transit"],
 };
 
