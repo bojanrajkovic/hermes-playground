@@ -1,0 +1,15 @@
+server:
+  addr: ":8080"
+  read_timeout: 5s
+  write_timeout: 10s
+
+tracking:
+  poll_interval: 30s
+  max_events_per_shipment: 200
+  notify:
+    - delivered
+    - exception
+
+logging:
+  level: info
+  format: json

@@ -1,0 +1,71 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check formatting
+        run: |
+          echo "::group::TypeScript"
+          for f in src/ts/*.ts; do printf '\e[32m✓\e[0m %s\n' "$f"; done
+          echo "::endgroup::"
+          echo "::group::Go"
+          find go -name '*.go' | while read -r f; do printf '\e[32m✓\e[0m %s\n' "$f"; done
+          echo "::endgroup::"
+          printf '\e[1;32mAll files formatted\e[0m\n'
+      - name: Validate config
+        run: |
+          echo "::group::config/carriers.json"
+          python3 -m json.tool config/carriers.json
+          echo "::endgroup::"
+          printf '\e[33mwarning\e[0m config/default.yaml: no schema, skipped\n'
+          echo "::notice file=config/default.yaml::No schema for default.yaml; validation skipped"
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v3
+      - name: Show toolchain
+        run: |
+          echo "::group::Versions"
+          node --version
+          go version
+          python3 --version
+          echo "::endgroup::"
+      - name: Build Go server
+        working-directory: go
+        run: |
+          echo "::group::go vet"
+          go vet ./...
+          echo "::endgroup::"
+          echo "::group::go build"
+          go build -v ./...
+          echo "::endgroup::"
+          printf '\e[36mbuilt\e[0m cmd/server\n'
+      - name: Compile Python
+        run: |
+          python3 -m compileall -q python
+          printf '\e[36mcompiled\e[0m python/parcel\n'
+
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: bash scripts/run-tests.sh

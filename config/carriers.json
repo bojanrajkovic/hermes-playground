@@ -1,0 +1,7 @@
+{
+  "carriers": [
+    { "id": "northwind", "name": "Northwind Freight", "baseCents": 450, "perKgCents": 120, "maxKg": 30 },
+    { "id": "bluejay", "name": "Bluejay Express", "baseCents": 690, "perKgCents": 95, "maxKg": 20 },
+    { "id": "tortoise", "name": "Tortoise Ground", "baseCents": 299, "perKgCents": 140, "maxKg": 50 }
+  ]
+}
