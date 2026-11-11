@@ -8,6 +8,8 @@ from pathlib import Path
 
 DEFAULT_PATH = Path(__file__).resolve().parents[2] / "config" / "carriers.json"
 
+ZONE_MULTIPLIERS = {1: 1.0, 2: 1.25, 3: 1.6}
+
 
 @dataclass(frozen=True)
 class Rate:
@@ -16,10 +18,12 @@ class Rate:
     per_kg_cents: int
     max_kg: float
 
-    def price_cents(self, weight_kg: float) -> int:
+    def price_cents(self, weight_kg: float, zone: int = 1) -> int:
         if weight_kg > self.max_kg:
             raise ValueError(f"{self.carrier} does not carry parcels over {self.max_kg} kg")
-        return round(self.base_cents + weight_kg * self.per_kg_cents)
+        if zone not in ZONE_MULTIPLIERS:
+            raise ValueError(f"unknown zone {zone}")
+        return round((self.base_cents + weight_kg * self.per_kg_cents) * ZONE_MULTIPLIERS[zone])
 
 
 def load_rates(path: Path = DEFAULT_PATH) -> list[Rate]:
@@ -36,8 +40,8 @@ def load_rates(path: Path = DEFAULT_PATH) -> list[Rate]:
     ]
 
 
-def cheapest(rates: list[Rate], weight_kg: float) -> Rate:
+def cheapest(rates: list[Rate], weight_kg: float, zone: int = 1) -> Rate:
     eligible = [rate for rate in rates if weight_kg <= rate.max_kg]
     if not eligible:
         raise ValueError(f"no carrier accepts {weight_kg} kg")
-    return min(eligible, key=lambda rate: rate.price_cents(weight_kg))
+    return min(eligible, key=lambda rate: rate.price_cents(weight_kg, zone))

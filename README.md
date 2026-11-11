@@ -82,7 +82,7 @@ stateDiagram-v2
 
 - [x] Shipment state machine
 - [x] Flat pricing
-- [ ] Zone-based pricing
+- [x] Zone-based pricing
 - [ ] Carrier registry
 - [ ] Webhooks for delivery events
 

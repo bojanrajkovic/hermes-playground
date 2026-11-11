@@ -16,6 +16,7 @@ type Shipment struct {
 	ID        string    `json:"id"`
 	Carrier   string    `json:"carrier"`
 	Status    string    `json:"status"`
+	Zone      int       `json:"zone"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
@@ -58,5 +59,16 @@ func (s *Store) List() []Shipment {
 		out = append(out, sh)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// ByZone returns the shipments in one pricing zone, ordered by ID.
+func (s *Store) ByZone(zone int) []Shipment {
+	var out []Shipment
+	for _, sh := range s.List() {
+		if sh.Zone == zone {
+			out = append(out, sh)
+		}
+	}
 	return out
 }
