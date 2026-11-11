@@ -10,6 +10,10 @@ tracking:
     - delivered
     - exception
 
+webhooks:
+  timeout: 3s
+  targets: []
+
 logging:
   level: info
   format: json
