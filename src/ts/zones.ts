@@ -8,6 +8,9 @@ const MULTIPLIERS: Record<Zone, number> = {
   3: 1.6,
 };
 
+const ZONE_1_MAX_DISTANCE = 1;
+const ZONE_2_MAX_DISTANCE = 4;
+
 // US postal codes start with a region digit, 0 in the northeast through 9 on the west coast.
 function region(address: Address): number {
   const digit = Number.parseInt(address.postalCode.charAt(0), 10);
@@ -19,10 +22,10 @@ function region(address: Address): number {
 
 export function zoneBetween(from: Address, to: Address): Zone {
   const distance = Math.abs(region(from) - region(to));
-  if (distance <= 1) {
+  if (distance <= ZONE_1_MAX_DISTANCE) {
     return 1;
   }
-  if (distance <= 4) {
+  if (distance <= ZONE_2_MAX_DISTANCE) {
     return 2;
   }
   return 3;
