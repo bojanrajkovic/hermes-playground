@@ -1,5 +1,5 @@
 import { Parcel, Shipment } from "./models";
-import { gramsToKg, roundTo, volumeLitres } from "./utils";
+import { gramsToKg, roundTo, volumeLitres } from "./units";
 
 export interface Quote {
   carrier: string;

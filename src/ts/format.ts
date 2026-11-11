@@ -1,5 +1,5 @@
 import { Shipment, TrackingEvent, currentStatus } from "./models";
-import { gramsToKg, roundTo } from "./utils";
+import { gramsToKg, roundTo } from "./units";
 
 const STATUS_LABELS = {
   created: "Label created",
