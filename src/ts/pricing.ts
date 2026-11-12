@@ -1,10 +1,12 @@
 import { Parcel, Shipment } from "./models";
-import { gramsToKg, roundTo, volumeLitres } from "./utils";
+import { centsToDollars, gramsToKg, roundTo, volumeLitres } from "./units";
+import { Zone, zoneBetween, zoneMultiplier } from "./zones";
 
 export interface Quote {
   carrier: string;
   amountCents: number;
   currency: "USD";
+  zone: Zone;
 }
 
 const BASE_RATE_CENTS = 450;
@@ -19,10 +21,11 @@ export function billableWeightKg(parcel: Parcel): number {
 
 export function quote(shipment: Shipment): Quote {
   const weight = billableWeightKg(shipment.parcel);
-  const amountCents = Math.round(BASE_RATE_CENTS + weight * PER_KG_CENTS);
-  return { carrier: shipment.carrier, amountCents, currency: "USD" };
+  const zone = zoneBetween(shipment.from, shipment.to);
+  const amountCents = Math.round((BASE_RATE_CENTS + weight * PER_KG_CENTS) * zoneMultiplier(zone));
+  return { carrier: shipment.carrier, amountCents, currency: "USD", zone };
 }
 
 export function formatQuote(q: Quote): string {
-  return `${q.carrier}: $${(q.amountCents / 100).toFixed(2)}`;
+  return `${q.carrier}: $${centsToDollars(q.amountCents)} (zone ${q.zone})`;
 }

@@ -1,6 +1,7 @@
 import { Shipment, ShipmentStatus, TrackingEvent, currentStatus } from "./models";
 import { formatEvent, formatSummary } from "./format";
 import { Quote, quote } from "./pricing";
+import { Zone, zoneBetween } from "./zones";
 
 export class UnknownShipmentError extends Error {
   constructor(public readonly shipmentId: string) {
@@ -56,7 +57,7 @@ export class Tracker {
       throw new InvalidTransitionError(from, status);
     }
 
-    const event: TrackingEvent = { at: new Date(), status, location, note };
+    const event: TrackingEvent = { at: new Date(), status, location: location.trim(), note };
     shipment.events.push(event);
 
     for (const listener of this.listeners) {
@@ -77,24 +78,21 @@ export class Tracker {
     return quote(this.get(id));
   }
 
+  zoneFor(id: string): Zone {
+    const shipment = this.get(id);
+    return zoneBetween(shipment.from, shipment.to);
+  }
+
   active(): Shipment[] {
-    const result: Shipment[] = [];
-    for (const shipment of this.shipments.values()) {
-      if (currentStatus(shipment) !== "delivered") {
-        result.push(shipment);
-      }
-    }
-    return result;
+    return this.filter((status) => status !== "delivered");
   }
 
   delivered(): Shipment[] {
-    const result: Shipment[] = [];
-    for (const shipment of this.shipments.values()) {
-      if (currentStatus(shipment) === "delivered") {
-        result.push(shipment);
-      }
-    }
-    return result;
+    return this.filter((status) => status === "delivered");
+  }
+
+  byZone(zone: Zone): Shipment[] {
+    return [...this.shipments.values()].filter((s) => zoneBetween(s.from, s.to) === zone);
   }
 
   countByStatus(): Record<ShipmentStatus, number> {
@@ -117,5 +115,9 @@ export class Tracker {
 
   clear(): void {
     this.shipments.clear();
+  }
+
+  private filter(keep: (status: ShipmentStatus) => boolean): Shipment[] {
+    return [...this.shipments.values()].filter((shipment) => keep(currentStatus(shipment)));
   }
 }

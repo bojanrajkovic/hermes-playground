@@ -12,7 +12,7 @@ import (
 
 func main() {
 	st := store.New()
-	st.Put(store.Shipment{ID: "shp_1001", Carrier: "northwind", Status: "in_transit"})
+	st.Put(store.Shipment{ID: "shp_1001", Carrier: "northwind", Status: "in_transit", Zone: 3})
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /shipments", func(w http.ResponseWriter, r *http.Request) {

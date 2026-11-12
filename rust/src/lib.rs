@@ -33,6 +33,11 @@ pub fn check_digit(digits: &[u32]) -> u32 {
     (10 - sum % 10) % 10
 }
 
+/// The zone is encoded in the first digit of the label: 1, 2 or 3.
+pub fn zone(label: &str) -> Option<u32> {
+    label.chars().next()?.to_digit(10).filter(|z| (1..=3).contains(z))
+}
+
 pub fn validate(label: &str) -> Result<(), LabelError> {
     if label.len() != 12 {
         return Err(LabelError::WrongLength(label.len()));
@@ -56,6 +61,12 @@ mod tests {
     #[test]
     fn accepts_valid_label() {
         assert_eq!(validate("036000291452"), Ok(()));
+    }
+
+    #[test]
+    fn reads_zone_from_first_digit() {
+        assert_eq!(zone("236000291452"), Some(2));
+        assert_eq!(zone("036000291452"), None);
     }
 
     #[test]
