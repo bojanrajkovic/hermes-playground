@@ -27,6 +27,15 @@ func main() {
 		writeJSON(w, http.StatusOK, sh)
 	})
 
+	mux.HandleFunc("GET /carriers", func(w http.ResponseWriter, r *http.Request) {
+		carriers, err := store.LoadCarriers("config/carriers.json")
+		if err != nil {
+			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, http.StatusOK, carriers)
+	})
+
 	addr := os.Getenv("PARCEL_ADDR")
 	if addr == "" {
 		addr = ":8080"
